@@ -1,74 +1,74 @@
 const contractSource = `
 
-  contract MemeVote =
+payable contract ResturantVote =
 
 
 
-    record meme =
+  record resturant =
 
-      { creatorAddress : address,
+    { creatorAddress : address,
 
-        url            : string,
+      url            : string,
 
-        name           : string,
+      name           : string,
 
-        voteCount      : int }
-
-
-
-    record state =
-
-      { memes      : map(int, meme),
-
-        memesLength : int }
+      voteCount      : int }
 
 
 
-    entrypoint init() =
+  record state =
 
-      { memes = {},
+    { resturants      : map(int, resturant),
 
-        memesLength = 0 }
-
-
-
-    entrypoint getMeme(index : int) : meme =
-
-      switch(Map.lookup(index, state.memes))
-
-        None    => abort("There was no meme with this index registered.")
-
-        Some(x) => x
+      resturantsLength : int }
 
 
 
-    stateful entrypoint registerMeme(url' : string, name' : string) =
+  entrypoint init() =
 
-      let meme = { creatorAddress = Call.caller, url = url', name = name', voteCount = 0}
+    { resturants = {},
 
-      let index = getMemesLength() + 1
-
-      put(state{ memes[index] = meme, memesLength = index })
+      resturantsLength = 0 }
 
 
 
-    entrypoint getMemesLength() : int =
+  entrypoint getResturant(index : int) : resturant =
 
-      state.memesLength
+  	switch(Map.lookup(index, state.resturants))
+
+	    None    => abort("There was no resturant with this index registered.")
+
+	    Some(x) => x
 
 
 
-    stateful entrypoint voteMeme(index : int) =
+  stateful entrypoint registerResturant(url' : string, name' : string) =
 
-      let meme = getMeme(index)
+    let resturant = { creatorAddress = Call.caller, url = url', name = name', voteCount = 0}
 
-      Chain.spend(meme.creatorAddress, Call.value)
+    let index = getResturantsLength() + 1
 
-      let updatedVoteCount = meme.voteCount + Call.value
+    put(state{ resturants[index] = resturant, resturantsLength = index })
 
-      let updatedMemes = state.memes{ [index].voteCount = updatedVoteCount }
 
-      put(state{ memes = updatedMemes })
+
+  entrypoint getResturantsLength() : int =
+
+    state.resturantsLength
+
+
+
+  payable stateful entrypoint voteResturant(index : int) =
+
+    let resturant = getResturant(index)
+
+    Chain.spend(resturant.creatorAddress, Call.value)
+
+    let updatedVoteCount = resturant.voteCount + Call.value
+
+    let updatedResturants = state.resturants{ [index].voteCount = updatedVoteCount }
+
+    put(state{ resturants = updatedResturants })
 
 `;
 
@@ -76,7 +76,7 @@ const contractSource = `
 
 //Address of the meme voting smart contract on the testnet of the aeternity blockchain
 
-const contractAddress = 'ct_2WRcJSeKyphdnTqRhjLNMyyk2W2QHRgzpYftMM9KcrBRR57akE';
+const contractAddress = 'ct_BTMaT1V63x6XfEZMnwLesBKpQ5yLBxtZJTVknLMG5ZQgXV9Ta';
 
 //Create variable for client so it can be used in different functions
 
@@ -84,19 +84,19 @@ var client = null;
 
 //Create a new global array for the memes
 
-var memeArray = [];
+var resturantArray = [];
 
 //Create a new variable to store the length of the meme globally
 
-var memesLength = 0;
+var resturantsLength = 0;
 
 
 
-function renderMemes() {
+function renderResturants() {
 
   //Order the memes array so that the meme with the most votes is on top
 
-  memeArray = memeArray.sort(function(a,b){return b.votes-a.votes})
+  resturantArray = resturantArray.sort(function(a,b){return b.votes-a.votes})
 
   //Get the template we created in a block scoped variable
 
@@ -108,11 +108,11 @@ function renderMemes() {
 
   //Create variable with result of render func form template and data
 
-  let rendered = Mustache.render(template, {memeArray});
+  let rendered = Mustache.render(template, {resturantArray});
 
   //Use jquery to add the result of the rendering to our html
 
-  $('#memeBody').html(rendered);
+  $('#resturantBody').html(rendered);
 
 }
 
@@ -180,33 +180,35 @@ window.addEventListener('load', async () => {
 
   //Assign the value of meme length to the global variable
 
-  memesLength = await callStatic('getMemesLength', []);
+  resturantsLength = await callStatic('getResturantsLength', []);
 
 
 
   //Loop over every meme to get all their relevant information
 
-  for (let i = 1; i <= memesLength; i++) {
+  for (let i = 1; i <= resturantsLength; i++) {
 
 
 
     //Make the call to the blockchain to get all relevant information on the meme
 
-    const meme = await callStatic('getMeme', [i]);
+    const resturant = await callStatic('getResturant', [i]);
 
 
 
     //Create meme object with  info from the call and push into the array with all memes
 
-    memeArray.push({
+    resturantArray.push({
 
-      creatorName: meme.name,
+      creatorName: resturant.name,
 
-      memeUrl: meme.url,
+      memeUrl: resturant.url,
 
       index: i,
 
-      votes: meme.voteCount,
+      votes: resturant.voteCount,
+
+      description: resturant.description,
 
     })
 
@@ -216,7 +218,7 @@ window.addEventListener('load', async () => {
 
   //Display updated memes
 
-  renderMemes();
+  renderResturants();
 
 
 
@@ -230,7 +232,7 @@ window.addEventListener('load', async () => {
 
 //If someone clicks to vote on a meme, get the input and execute the voteCall
 
-jQuery("#memeBody").on("click", ".voteBtn", async function(event){
+jQuery("#resturantBody").on("click", ".voteBtn", async function(event){
 
   $("#loader").show();
 
@@ -246,21 +248,21 @@ jQuery("#memeBody").on("click", ".voteBtn", async function(event){
 
   //Promise to execute execute call for the vote meme function with let values
 
-  await contractCall('voteMeme', [index], value);
+  await contractCall('voteResturant', [index], value);
 
 
 
   //Hide the loading animation after async calls return a value
 
-  const foundIndex = memeArray.findIndex(meme => meme.index == event.target.id);
+  const foundIndex = resturantArray.findIndex(resturant => resturant.index == event.target.id);
 
   //console.log(foundIndex);
 
-  memeArray[foundIndex].votes += parseInt(value, 10);
+  resturantArray[foundIndex].votes += parseInt(value, 10);
 
 
 
-  renderMemes();
+  renderResturants();
 
   $("#loader").hide();
 
@@ -278,33 +280,37 @@ $('#registerBtn').click(async function(){
 
   const name = ($('#regName').val()),
 
-        url = ($('#regUrl').val());
+        url = ($('#regUrl').val()),
+
+          description= ($('#regDescription').val());
 
 
 
   //Make the contract call to register the meme with the newly passed values
 
-  await contractCall('registerMeme', [url, name], 0);
+  await contractCall('registerResturant', [url, name, description], 0);
 
 
 
   //Add the new created memeobject to our memearray
 
-  memeArray.push({
+  resturantArray.push({
 
     creatorName: name,
 
     memeUrl: url,
 
-    index: memeArray.length+1,
+    index: resturantArray.length+1,
 
     votes: 0,
+
+    description: description,
 
   })
 
 
 
-  renderMemes();
+  renderResturants();
 
   $("#loader").hide();
 
