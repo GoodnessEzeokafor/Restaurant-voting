@@ -11,7 +11,7 @@ payable contract ResturantVote =
       url            : string,
 
       name           : string,
-
+      description    : string
       voteCount      : int }
 
 
@@ -42,9 +42,9 @@ payable contract ResturantVote =
 
 
 
-  stateful entrypoint registerResturant(url' : string, name' : string) =
+  stateful entrypoint registerResturant(url' : string, name' : string, description': string) =
 
-    let resturant = { creatorAddress = Call.caller, url = url', name = name', voteCount = 0}
+    let resturant = { creatorAddress = Call.caller, url = url', name = name',description=description' ,voteCount = 0}
 
     let index = getResturantsLength() + 1
 
