@@ -76,7 +76,7 @@ payable contract ResturantVote =
 
 //Address of the meme voting smart contract on the testnet of the aeternity blockchain
 
-const contractAddress = 'ct_BTMaT1V63x6XfEZMnwLesBKpQ5yLBxtZJTVknLMG5ZQgXV9Ta';
+const contractAddress = 'ct_2ceit8Uc2kSeFuh9eResSxvCughi4puamST66f8owhKWTMHkhY';
 
 //Create variable for client so it can be used in different functions
 
