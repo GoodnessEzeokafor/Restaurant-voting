@@ -40,8 +40,6 @@ payable contract ResturantVote =
 
 	    Some(x) => x
 
-
-
   stateful entrypoint registerResturant(url' : string, name' : string) =
 
     let resturant = { creatorAddress = Call.caller, url = url', name = name', voteCount = 0}
@@ -288,7 +286,7 @@ $('#registerBtn').click(async function(){
 
   //Make the contract call to register the meme with the newly passed values
 
-  await contractCall('registerResturant', [url, name, description], 0);
+  await contractCall('registerResturant', [url, name], 0);
 
 
 
