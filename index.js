@@ -11,7 +11,7 @@ payable contract ResturantVote =
       url            : string,
 
       name           : string,
-      description    : string
+      description    : string,
       voteCount      : int }
 
 
