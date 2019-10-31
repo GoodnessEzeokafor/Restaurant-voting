@@ -181,7 +181,7 @@ window.addEventListener('load', async () => {
   //Assign the value of meme length to the global variable
 
   resturantsLength = await callStatic('getResturantsLength', []);
-
+  console.log("Length Of Restaurant:",resturantsLength)
 
 
   //Loop over every meme to get all their relevant information
